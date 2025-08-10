@@ -96,4 +96,108 @@ router.get("/analytics", async (req, res) => {
   router.handle(req, res);
 });
 
+// GET /api/admin/employee?email=someone@team1.in
+// Returns profile, summary, topic weaknesses, and last attempt details
+router.get("/employee", async (req, res) => {
+  if (!checkAdmin(req, res)) return;
+
+  try {
+    const email = (req.query.email || "").trim().toLowerCase();
+    if (!email) return res.status(400).json({ error: "email query param is required" });
+
+    // pull all attempts for this user (latest first)
+    const attempts = await Result.find({ email })
+      .sort({ date: -1 })
+      .lean();
+
+    if (!attempts.length) {
+      return res.json({
+        profile: { name: "—", email, department: "—", attempts: 0 },
+        summary: { avgScore: 0, lastScore: 0, avgTime: 0, weakTopics: [] },
+        attempts: []
+      });
+    }
+
+    // compute summary
+    const safeLen = (r) => Array.isArray(r.answers) ? r.answers.length : 0;
+    const pct = (r) => {
+      const t = safeLen(r);
+      return t > 0 ? (r.score / t) * 100 : 0;
+    };
+
+    const avgScore = attempts.reduce((s, r) => s + pct(r), 0) / attempts.length;
+    const times = attempts.map(a => Number(a.totalTime)).filter(n => Number.isFinite(n) && n >= 0);
+    const avgTime = times.length ? (times.reduce((a,b)=>a+b,0) / times.length) : 0;
+    const last = attempts[0];
+
+    // topic weaknesses (all attempts)
+    const topicCount = {};
+    attempts.forEach(r => (r.answers || []).forEach(a => {
+      if (!a.correct) topicCount[a.topic || "General"] = (topicCount[a.topic || "General"] || 0) + 1;
+    }));
+    const weakTopics = Object.entries(topicCount)
+      .map(([topic, wrongCount]) => ({ topic, wrongCount }))
+      .sort((a,b)=>b.wrongCount - a.wrongCount)
+      .slice(0, 8);
+
+    // enrich last attempt answers with question text/options
+    const qIds = (last.answers || []).map(a => a.questionId).filter(Boolean);
+    const Question = require("../models/Question");
+    const qDocs = await Question.find({ _id: { $in: qIds } }).lean();
+    const qById = {};
+    qDocs.forEach(q => { qById[q._id.toString()] = q; });
+
+    const lastAnswers = (last.answers || []).map(a => {
+      const q = qById[a.questionId];
+      const selectedText = (q && Number.isFinite(a.selected)) ? q.options[a.selected] : (a.selected === null ? "(no answer)" : "");
+      const correctText  = q ? q.options[q.answer] : "";
+      return {
+        question: q ? q.question : "(question not found)",
+        topic: a.topic || (q ? q.topic : "General"),
+        selectedIndex: a.selected,
+        selectedText,
+        correctIndex: q ? q.answer : null,
+        correctText,
+        correct: a.correct,
+        timeTaken: a.timeTaken ?? null
+      };
+    });
+
+    res.json({
+      profile: {
+        name: last.name || "—",
+        email,
+        department: last.department || "—",
+        attempts: attempts.length
+      },
+      summary: {
+        avgScore,
+        lastScore: pct(last),
+        avgTime,
+        weakTopics
+      },
+      attempts: attempts.map(a => ({
+        date: a.date,
+        score: a.score,
+        total: safeLen(a),
+        pct: pct(a),
+        totalTime: a.totalTime ?? null,
+        id: a._id
+      })),
+      lastAttempt: {
+        date: last.date,
+        score: last.score,
+        total: safeLen(last),
+        pct: pct(last),
+        totalTime: last.totalTime ?? null,
+        answers: lastAnswers
+      }
+    });
+  } catch (err) {
+    console.error("Admin employee detail error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 module.exports = router;

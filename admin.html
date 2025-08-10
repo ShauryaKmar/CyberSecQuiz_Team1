@@ -44,5 +44,36 @@
   </main>
 
   <script src="admin.js"></script>
+
+  <!-- Employee Detail Modal -->
+<div id="empModal" class="modal" style="display:none;">
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <h3 id="empTitle">Employee Detail</h3>
+      <button class="modal-close" id="empClose" title="Close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="empSummary" class="emp-summary"></div>
+      <h4>Weak Topics</h4>
+      <ul id="empWeak" class="weak-list"></ul>
+      <h4>Last Attempt — Answers</h4>
+      <table class="answers-table">
+        <thead>
+          <tr><th>Question</th><th>Topic</th><th>Your Answer</th><th>Correct Answer</th><th>Result</th></tr>
+        </thead>
+        <tbody id="empAnswers"></tbody>
+      </table>
+      <h4>All Attempts</h4>
+      <table class="answers-table">
+        <thead>
+          <tr><th>Date</th><th>Score</th><th>Time</th></tr>
+        </thead>
+        <tbody id="empAttempts"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

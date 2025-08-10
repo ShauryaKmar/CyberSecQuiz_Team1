@@ -14,6 +14,15 @@ async function fetchAdminData(key) {
   throw lastErr;
 }
 
+async function fetchEmployeeDetail(key, email) {
+  const url = `${ADMIN_BASE}/employee?email=${encodeURIComponent(email)}`;
+  const res = await fetch(url, { headers: { "x-api-key": key } });
+  const txt = await res.text();
+  if (!res.ok) throw new Error(`HTTP ${res.status} – ${txt || "No body"}`);
+  return JSON.parse(txt);
+}
+
+
 document.getElementById("loadData").addEventListener("click", async () => {
   const key = document.getElementById("apiKey").value.trim();
   if (!key) return alert("Enter Admin Key!");
@@ -96,11 +105,24 @@ function renderEmployeeTable(employees) {
     const riskClass = pct < 50 ? "risk-high" : pct < 70 ? "risk-medium" : "risk-low";
     const tr = document.createElement("tr");
     tr.className = riskClass;
+    tr.dataset.email = e.email || "";     // <-- store email
     tr.innerHTML = `
-      <td>${e.name}</td>
-      <td>${e.department}</td>
-      <td>${pct.toFixed(1)}%</td>
+      <td class="clickable">${e.name}</td>
+      <td class="clickable">${e.department}</td>
+      <td class="clickable">${pct.toFixed(1)}%</td>
     `;
+    tr.addEventListener("click", async () => {
+      const key = document.getElementById("apiKey").value.trim();
+      if (!key) return alert("Enter Admin Key first.");
+      if (!tr.dataset.email) return alert("No email found for this record.");
+      try {
+        const data = await fetchEmployeeDetail(key, tr.dataset.email);
+        showEmployeeModal(data);
+      } catch (err) {
+        console.error("Employee detail error:", err);
+        alert(`Failed to load employee detail: ${err.message}`);
+      }
+    });
     tbody.appendChild(tr);
   });
 }
