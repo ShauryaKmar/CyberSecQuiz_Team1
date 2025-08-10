@@ -1,12 +1,4 @@
-const mongoose = require('mongoose');
-
-const answerSchema = new mongoose.Schema({
-  questionId: { type: mongoose.Schema.Types.ObjectId, ref: 'Question' },
-  selected: Number,
-  correct: Boolean,
-  topic: String,
-  timeTaken: Number
-}, { _id: false });
+const mongoose = require("mongoose");
 
 const resultSchema = new mongoose.Schema({
   name: String,
@@ -14,11 +6,19 @@ const resultSchema = new mongoose.Schema({
   department: String,
   score: Number,
   totalTime: Number,
-  answers: [answerSchema],
+  answers: [
+    {
+      questionId: String,
+      selected: Number,
+      correct: Boolean,
+      topic: String,
+      timeTaken: Number
+    }
+  ],
   riskLevel: String,
+  date: { type: Date, default: Date.now },
   userAgent: String,
-  ip: String,
-  date: { type: Date, default: Date.now }
+  ip: String
 });
 
-module.exports = mongoose.model('Result', resultSchema);
+module.exports = mongoose.model("Result", resultSchema);

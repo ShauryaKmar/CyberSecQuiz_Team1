@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cybersecurity Quiz - Admin Portal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #1a237e;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+    main {
+      max-width: 1000px;
+      margin: 20px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+    th {
+      background: #3949ab;
+      color: white;
+    }
+    th, td {
+      padding: 8px;
+      text-align: left;
+    }
+    .chart-container {
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Cybersecurity Quiz - Admin Dashboard</h1>
+  </header>
+  <main>
+    <div>
+      <label for="apiKey">Admin API Key:</label>
+      <input type="password" id="apiKey" placeholder="Enter Admin Key">
+      <button id="loadData">Load Data</button>
+    </div>
+
+    <div class="chart-container">
+      <canvas id="topicChart" height="120"></canvas>
+    </div>
+
+    <h2>High Risk Employees</h2>
+    <table id="riskTable">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Department</th>
+          <th>Score (%)</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </main>
+  <script src="admin.js"></script>
+</body>
+</html>

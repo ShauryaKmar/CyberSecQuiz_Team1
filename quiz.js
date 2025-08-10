@@ -2,10 +2,15 @@ let quiz = [];
 let currentIndex = 0;
 let score = 0;
 let username = "";
+let useremail = "";
+let department = "";
+let answersLog = [];
 
-// ✅ Change this to your deployed backend URL if not testing locally
+// Backend URL
 const API_URL = "https://cybersecquiz-team1.onrender.com/api/questions"; 
+const RESULT_URL = "https://cybersecquiz-team1.onrender.com/api/results";
 
+// Load questions
 async function loadQuestions() {
   try {
     const res = await fetch(API_URL);
@@ -21,14 +26,18 @@ async function loadQuestions() {
   }
 }
 
+// Start Quiz
 document.getElementById("start-btn").addEventListener("click", async () => {
   username = document.getElementById("username").value.trim();
-  if (!username) {
-    alert("Please enter your name!");
+  useremail = document.getElementById("useremail").value.trim();
+  department = document.getElementById("department").value.trim();
+
+  if (!username || !useremail || !department) {
+    alert("Please fill in all fields!");
     return;
   }
 
-  await loadQuestions(); // fetch from backend
+  await loadQuestions();
 
   if (quiz.length > 0) {
     document.getElementById("start-screen").style.display = "none";
@@ -37,15 +46,17 @@ document.getElementById("start-btn").addEventListener("click", async () => {
   }
 });
 
+// Next Button
 document.getElementById("next-btn").addEventListener("click", () => {
   currentIndex++;
   if (currentIndex < quiz.length) {
     showQuestion();
   } else {
-    showCertificate();
+    endQuiz();
   }
 });
 
+// Show Question
 function showQuestion() {
   document.getElementById("feedback").textContent = "";
   document.getElementById("next-btn").style.display = "none";
@@ -64,20 +75,47 @@ function showQuestion() {
   });
 }
 
+// Check Answer
 function checkAnswer(selected, q) {
-  if (selected === q.answer) {
+  const correct = selected === q.answer;
+  if (correct) {
     score++;
     document.getElementById("feedback").textContent = "✅ Correct!";
   } else {
     document.getElementById("feedback").textContent = `❌ Wrong! ${q.explanation || "Review company security policies."}`;
   }
+
+  answersLog.push({
+    questionId: q._id,
+    selected,
+    correct,
+    topic: q.topic || "General"
+  });
+
   document.getElementById("next-btn").style.display = "block";
 }
 
-function showCertificate() {
+// End Quiz
+async function endQuiz() {
   document.getElementById("quiz-screen").style.display = "none";
-  document.getElementById("certificate-screen").style.display = "block";
-  document.getElementById("cert-name").textContent = `Awarded to: ${username}`;
-  document.getElementById("cert-score").textContent = `${score} / ${quiz.length}`;
-  document.getElementById("badge").textContent = score === quiz.length ? "🏆 Gold" : score >= quiz.length * 0.7 ? "🥈 Silver" : "🥉 Bronze";
+  document.getElementById("end-screen").style.display = "block";
+  document.getElementById("final-name").textContent = `Well done, ${username}!`;
+  document.getElementById("final-score").textContent = `Your Score: ${score} / ${quiz.length}`;
+
+  // Save results to backend
+  try {
+    await fetch(RESULT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: username,
+        email: useremail,
+        department,
+        answers: answersLog,
+        totalTime: 0
+      })
+    });
+  } catch (err) {
+    console.error("Error saving results:", err);
+  }
 }

@@ -8,12 +8,16 @@
 </head>
 <body>
   <div class="quiz-container">
+    <!-- Start Screen -->
     <div id="start-screen">
       <h1>Cybersecurity Awareness Quiz</h1>
       <input type="text" id="username" placeholder="Enter your name" required>
+      <input type="email" id="useremail" placeholder="Enter your email" required>
+      <input type="text" id="department" placeholder="Enter department" required>
       <button id="start-btn">Start Quiz</button>
     </div>
 
+    <!-- Quiz Screen -->
     <div id="quiz-screen" style="display: none;">
       <div id="question-progress"></div>
       <div id="timer"></div>
@@ -23,11 +27,11 @@
       <button id="next-btn" style="display: none;">Next</button>
     </div>
 
-    <div id="certificate-screen" style="display: none;">
-      <h2>Certificate of Achievement</h2>
-      <p id="cert-name"></p>
-      <p>Score: <span id="cert-score"></span></p>
-      <p id="badge"></p>
+    <!-- End Screen -->
+    <div id="end-screen" style="display: none;">
+      <h2>Quiz Completed</h2>
+      <p id="final-name"></p>
+      <p id="final-score"></p>
     </div>
   </div>
   
