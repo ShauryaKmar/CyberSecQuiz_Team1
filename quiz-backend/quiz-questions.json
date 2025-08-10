@@ -1,0 +1,167 @@
+[
+  {
+    "question": "Which of the following is the MOST effective way to verify a client email requesting sensitive project data?",
+    "options": [
+      "Check if the email uses company branding",
+      "Reply to the email to confirm identity",
+      "Call the client using their official contact details",
+      "Forward the email to IT without checking"
+    ],
+    "answer": 2,
+    "explanation": "Always verify sensitive requests using a trusted channel (e.g., official phone number) rather than replying to the same email."
+  },
+  {
+    "question": "When sharing internal project files with a client, which is the safest approach?",
+    "options": [
+      "Attach files directly in an email",
+      "Use a secure company-approved file sharing platform",
+      "Upload to any free cloud service for convenience",
+      "Send over messaging apps like WhatsApp"
+    ],
+    "answer": 1,
+    "explanation": "Always use approved platforms with access control and encryption to share sensitive data."
+  },
+  {
+    "question": "What is the primary risk of using personal email accounts for company work?",
+    "options": [
+      "Personal email has fewer storage limits",
+      "It bypasses company security controls",
+      "It makes communication faster",
+      "It is more compatible with all devices"
+    ],
+    "answer": 1,
+    "explanation": "Personal email lacks enterprise-grade monitoring and can expose company data to breaches."
+  },
+  {
+    "question": "If you receive an internal email marked as URGENT asking for employee details, what should you do?",
+    "options": [
+      "Reply immediately to avoid delays",
+      "Verify with the requester through phone or in-person",
+      "Forward it to all team members to warn them",
+      "Delete it without reporting"
+    ],
+    "answer": 1,
+    "explanation": "Always verify suspicious internal requests through a separate channel before responding."
+  },
+  {
+    "question": "Why should VPN be used when accessing company systems remotely?",
+    "options": [
+      "It increases internet speed",
+      "It encrypts your connection and hides sensitive data",
+      "It prevents websites from loading slowly",
+      "It blocks all phishing emails automatically"
+    ],
+    "answer": 1,
+    "explanation": "VPNs encrypt your traffic, making it harder for attackers to intercept sensitive information."
+  },
+  {
+    "question": "Which password is MOST appropriate for internal systems?",
+    "options": [
+      "Team1Consulting2024",
+      "Password@123",
+      "9!kR7&zT1$mP",
+      "Your birthdate combined with company initials"
+    ],
+    "answer": 2,
+    "explanation": "Strong passwords are random, long, and difficult to guess, unlike predictable patterns."
+  },
+  {
+    "question": "What should you do if you accidentally send confidential data to the wrong recipient?",
+    "options": [
+      "Ignore it and hope they delete it",
+      "Immediately inform your IT/security team",
+      "Send a follow-up email asking them to delete it",
+      "Try to delete the email from your sent items"
+    ],
+    "answer": 1,
+    "explanation": "Report the incident to IT/security immediately so they can take action to limit the damage."
+  },
+  {
+    "question": "Which of these is a clear sign of a compromised company account?",
+    "options": [
+      "Password reset prompt after 3 months",
+      "Unusual logins from foreign locations",
+      "Slow internet connection",
+      "Colleagues asking for project updates"
+    ],
+    "answer": 1,
+    "explanation": "Unexpected logins from unusual locations can indicate an account breach."
+  },
+  {
+    "question": "What is the safest way to handle confidential data on shared office computers?",
+    "options": [
+      "Rely on antivirus to protect everything",
+      "Always log out and clear cached files after use",
+      "Avoid using shared computers entirely",
+      "Write down credentials for quick access"
+    ],
+    "answer": 1,
+    "explanation": "Clearing sessions and logging out helps prevent unauthorized access when using shared systems."
+  },
+  {
+    "question": "Which action reduces the risk of insider threats?",
+    "options": [
+      "Granting everyone full access to speed up work",
+      "Implementing role-based access control",
+      "Allowing password sharing for trusted teams",
+      "Storing credentials in a shared spreadsheet"
+    ],
+    "answer": 1,
+    "explanation": "Limiting access to only what's needed reduces damage from insider threats or compromised accounts."
+  },
+  {
+    "question": "What is 'spear phishing'?",
+    "options": [
+      "A broad email scam sent to thousands of people",
+      "A highly targeted phishing attack aimed at specific individuals",
+      "An attack that installs spyware automatically",
+      "A phishing attempt disguised as antivirus software"
+    ],
+    "answer": 1,
+    "explanation": "Spear phishing targets specific people using personal details to appear legitimate."
+  },
+  {
+    "question": "If an employee uses the same password for multiple company tools, what is the risk?",
+    "options": [
+      "No risk as long as the password is strong",
+      "If one tool is breached, all others are exposed",
+      "It makes IT support faster",
+      "The account may log out automatically"
+    ],
+    "answer": 1,
+    "explanation": "Password reuse means one breach can compromise multiple systems."
+  },
+  {
+    "question": "Why should USB drives from unknown sources not be connected to company laptops?",
+    "options": [
+      "They may slow down your computer",
+      "They can contain malware or steal information",
+      "They take up storage space",
+      "They require additional drivers to work"
+    ],
+    "answer": 1,
+    "explanation": "Unknown USB drives can carry malware that executes automatically on connection."
+  },
+  {
+    "question": "What should be done before granting new software access to employees?",
+    "options": [
+      "Ensure it's requested over email",
+      "Verify with IT that the software is approved",
+      "Download it from the first search result",
+      "Share the license key in a team group chat"
+    ],
+    "answer": 1,
+    "explanation": "Always verify software through IT to ensure it’s safe and approved for internal use."
+  },
+  {
+    "question": "Why is multi-factor authentication (MFA) recommended for company tools?",
+    "options": [
+      "It makes logins faster",
+      "It prevents all phishing attacks automatically",
+      "It adds an extra layer of security beyond passwords",
+      "It eliminates the need for strong passwords"
+    ],
+    "answer": 2,
+    "explanation": "MFA adds another layer of protection, requiring something you have (OTP, device) in addition to something you know (password)."
+  }
+]
