@@ -13,7 +13,8 @@ function checkAdmin(req, res) {
 }
 
 // routes/admin.js  (analytics endpoint)
-router.get('/analytics', async (req, res) => {
+router.get('/insights', async (req, res) => {
+
   if (!checkAdmin(req, res)) return;
 
   try {

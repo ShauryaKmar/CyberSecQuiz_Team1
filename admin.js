@@ -1,5 +1,5 @@
 // frontend/admin.js
-const ANALYTICS_URL = "https://cybersecquiz-team1.onrender.com/api/admin/analytics";
+const ANALYTICS_URL = "https://cybersecquiz-team1.onrender.com/api/admin/insights";
 
 document.getElementById("loadData").addEventListener("click", loadAnalytics);
 
