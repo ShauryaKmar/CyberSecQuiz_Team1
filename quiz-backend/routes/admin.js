@@ -1,3 +1,4 @@
+// routes/admin.js
 const express = require('express');
 const router = express.Router();
 const Result = require('../models/Result');
@@ -15,82 +16,88 @@ router.get('/analytics', async (req, res) => {
   if (!checkAdmin(req, res)) return;
 
   try {
-    // Total responses & average score & avg time
-    const stats = await Result.aggregate([
-      {
-        $group: {
-          _id: null,
-          count: { $sum: 1 },
-          avgScore: {
-            $avg: { $multiply: [{ $divide: ["$score", { $size: "$answers" }] }, 100] }
-          },
-          avgTime: { $avg: "$totalTime" }
-        }
-      }
-    ]);
+    // Pull everything once; compute safely in JS
+    const results = await Result.find().lean();
 
-    const totalResponses = stats[0]?.count || 0;
-    const averageScore = stats[0]?.avgScore || 0;
-    const averageTime = stats[0]?.avgTime || 0;
+    const safeAnswersLen = (r) => Array.isArray(r.answers) ? r.answers.length : 0;
+    const safePct = (r) => {
+      const total = safeAnswersLen(r);
+      return total > 0 ? (r.score / total) * 100 : 0;
+    };
 
-    // Topic-wise wrong %
-    const topicStats = await Result.aggregate([
-      { $unwind: "$answers" },
-      {
-        $group: {
-          _id: "$answers.topic",
-          total: { $sum: 1 },
-          wrong: { $sum: { $cond: ["$answers.correct", 0, 1] } }
-        }
-      },
-      {
-        $project: {
-          topic: "$_id",
-          wrongPct: { $multiply: [{ $divide: ["$wrong", "$total"] }, 100] }
-        }
-      },
-      { $sort: { wrongPct: -1 } }
-    ]);
+    // Totals & averages
+    const totalResponses = results.length;
+    const averageScore = totalResponses
+      ? results.reduce((sum, r) => sum + safePct(r), 0) / totalResponses
+      : 0;
 
-    // Department weaknesses
-    const departmentWeaknesses = await Result.aggregate([
-      { $unwind: "$answers" },
-      { $match: { "answers.correct": false } },
-      {
-        $group: {
-          _id: { department: "$department", topic: "$answers.topic" },
-          wrongCount: { $sum: 1 }
+    const times = results
+      .map(r => Number(r.totalTime))
+      .filter(n => Number.isFinite(n) && n >= 0);
+    const averageTime = times.length
+      ? times.reduce((a, b) => a + b, 0) / times.length
+      : 0;
+
+    // Topic stats (wrong %)
+    const topicBuckets = {};
+    results.forEach(r => {
+      (r.answers || []).forEach(a => {
+        const topic = a.topic || 'General';
+        if (!topicBuckets[topic]) topicBuckets[topic] = { total: 0, wrong: 0 };
+        topicBuckets[topic].total += 1;
+        if (!a.correct) topicBuckets[topic].wrong += 1;
+      });
+    });
+    const topicStats = Object.entries(topicBuckets)
+      .map(([topic, { total, wrong }]) => ({
+        topic,
+        wrongPct: total ? (wrong / total) * 100 : 0
+      }))
+      .sort((a, b) => b.wrongPct - a.wrongPct);
+
+    // Department weaknesses (top 5 wrong topics per dept)
+    const deptMap = {};
+    results.forEach(r => {
+      const dept = r.department || '—';
+      if (!deptMap[dept]) deptMap[dept] = {};
+      (r.answers || []).forEach(a => {
+        if (!a.correct) {
+          const topic = a.topic || 'General';
+          deptMap[dept][topic] = (deptMap[dept][topic] || 0) + 1;
         }
-      },
-      {
-        $group: {
-          _id: "$_id.department",
-          weakTopics: { $push: { topic: "$_id.topic", wrongCount: "$wrongCount" } }
-        }
-      }
-    ]);
+      });
+    });
+    const departmentWeaknesses = Object.entries(deptMap).map(([department, topicsObj]) => ({
+      department,
+      weakTopics: Object.entries(topicsObj)
+        .map(([topic, wrongCount]) => ({ topic, wrongCount }))
+        .sort((x, y) => y.wrongCount - x.wrongCount)
+        .slice(0, 5)
+    }));
 
     // Score distribution
-    const allResults = await Result.find().lean();
     const scoreDistribution = [
-      { range: "0-50", count: 0 },
-      { range: "51-70", count: 0 },
-      { range: "71-100", count: 0 }
+      { range: '0-50', count: 0 },
+      { range: '51-70', count: 0 },
+      { range: '71-100', count: 0 }
     ];
-    allResults.forEach(r => {
-      const pct = (r.score / r.answers.length) * 100;
+    results.forEach(r => {
+      const pct = safePct(r);
       if (pct <= 50) scoreDistribution[0].count++;
       else if (pct <= 70) scoreDistribution[1].count++;
       else scoreDistribution[2].count++;
     });
 
-    // High risk employees
-    const highRisk = allResults
-      .map(r => ({
-        name: r.name,
-        department: r.department,
-        pct: (r.score / r.answers.length) * 100
-      }))
+    // Employees list (for table) + high risk
+    const employees = results.map(r => ({
+      name: r.name || '—',
+      department: r.department || '—',
+      score: Number(r.score) || 0,
+      total: safeAnswersLen(r),
+      pct: safePct(r)
+    }));
+
+    const highRisk = employees
       .filter(e => e.pct < 50)
       .sort((a, b) => a.pct - b.pct);
 
@@ -102,10 +109,10 @@ router.get('/analytics', async (req, res) => {
       departmentWeaknesses,
       scoreDistribution,
       highRisk,
-      allResults
+      employees
     });
-
   } catch (err) {
+    console.error('Admin analytics error:', err);
     res.status(500).json({ error: err.message });
   }
 });

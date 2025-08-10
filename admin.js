@@ -1,3 +1,4 @@
+// frontend/admin.js
 document.getElementById("loadData").addEventListener("click", async () => {
   const key = document.getElementById("apiKey").value.trim();
   if (!key) return alert("Enter API key!");
@@ -6,21 +7,31 @@ document.getElementById("loadData").addEventListener("click", async () => {
     const res = await fetch("https://cybersecquiz-team1.onrender.com/api/admin/analytics", {
       headers: { "x-api-key": key }
     });
-    if (!res.ok) throw new Error(`Server responded with ${res.status}`);
-    const data = await res.json();
 
-    // Update cards
-    document.getElementById("totalResponsesCard").textContent = `Total Responses: ${data.totalResponses}`;
-    document.getElementById("avgScoreCard").textContent = `Average Score: ${data.averageScore.toFixed(1)}%`;
-    document.getElementById("avgTimeCard").textContent = `Average Time: ${Math.round(data.averageTime)}s`;
+    const raw = await res.text();
+    if (!res.ok) throw new Error(`HTTP ${res.status} – ${raw || "No body"}`);
 
-    renderTopicChart(data.topicStats);
-    renderScoreDistChart(data.scoreDistribution);
-    renderEmployeeTable(data.allResults);
+    const data = JSON.parse(raw);
 
+    // Cards
+    const avgScore = Number(data.averageScore);
+    const avgTime = Number(data.averageTime);
+    document.getElementById("totalResponsesCard").textContent =
+      `Total Responses: ${Number(data.totalResponses) || 0}`;
+    document.getElementById("avgScoreCard").textContent =
+      `Average Score: ${Number.isFinite(avgScore) ? avgScore.toFixed(1) : 0}%`;
+    document.getElementById("avgTimeCard").textContent =
+      `Average Time: ${Number.isFinite(avgTime) ? Math.round(avgTime) : 0}s`;
+
+    // Charts
+    renderTopicChart(data.topicStats || []);
+    renderScoreDistChart(data.scoreDistribution || []);
+
+    // Table
+    renderEmployeeTable(data.employees || []);
   } catch (err) {
-    console.error(err);
-    alert("Failed to load admin data");
+    console.error("Admin data fetch error:", err);
+    alert(`Failed to load admin data: ${err.message}`);
   }
 });
 
@@ -32,9 +43,13 @@ function renderTopicChart(topicStats) {
       labels: topicStats.map(t => t.topic),
       datasets: [{
         label: "% Incorrect",
-        data: topicStats.map(t => t.wrongPct.toFixed(1)),
+        data: topicStats.map(t => Number(t.wrongPct).toFixed(1)),
         backgroundColor: "rgba(255, 99, 132, 0.6)"
       }]
+    },
+    options: {
+      responsive: true,
+      scales: { y: { beginAtZero: true, max: 100 } }
     }
   });
 }
@@ -46,24 +61,27 @@ function renderScoreDistChart(scoreDist) {
     data: {
       labels: scoreDist.map(s => s.range),
       datasets: [{
-        label: "Employees",
         data: scoreDist.map(s => s.count),
         backgroundColor: ["#e74c3c", "#f1c40f", "#2ecc71"]
       }]
-    }
+    },
+    options: { responsive: true }
   });
 }
 
-function renderEmployeeTable(results) {
+function renderEmployeeTable(employees) {
   const tbody = document.querySelector("#resultsTable tbody");
   tbody.innerHTML = "";
-  results.forEach(r => {
-    const pct = (r.score / r.answers.length) * 100;
-    let riskClass = pct < 50 ? "risk-high" : pct < 70 ? "risk-medium" : "risk-low";
-
+  employees.forEach(e => {
+    const pct = Number(e.pct) || 0;
+    const riskClass = pct < 50 ? "risk-high" : pct < 70 ? "risk-medium" : "risk-low";
     const tr = document.createElement("tr");
-    tr.classList.add(riskClass);
-    tr.innerHTML = `<td>${r.name}</td><td>${r.department}</td><td>${pct.toFixed(1)}%</td>`;
+    tr.className = riskClass;
+    tr.innerHTML = `
+      <td>${e.name}</td>
+      <td>${e.department}</td>
+      <td>${pct.toFixed(1)}%</td>
+    `;
     tbody.appendChild(tr);
   });
 }

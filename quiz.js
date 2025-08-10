@@ -5,17 +5,15 @@ let username = "";
 let useremail = "";
 let department = "";
 let answersLog = [];
+let startTime = 0; // NEW
 
-// Backend URL
-const API_URL = "https://cybersecquiz-team1.onrender.com/api/questions"; 
+const API_URL = "https://cybersecquiz-team1.onrender.com/api/questions";
 const RESULT_URL = "https://cybersecquiz-team1.onrender.com/api/results";
 
-// Load questions
 async function loadQuestions() {
   try {
     const res = await fetch(API_URL);
     quiz = await res.json();
-
     if (!Array.isArray(quiz) || quiz.length === 0) {
       alert("No questions found in the database.");
       return;
@@ -26,7 +24,6 @@ async function loadQuestions() {
   }
 }
 
-// Start Quiz
 document.getElementById("start-btn").addEventListener("click", async () => {
   username = document.getElementById("username").value.trim();
   useremail = document.getElementById("useremail").value.trim();
@@ -42,11 +39,11 @@ document.getElementById("start-btn").addEventListener("click", async () => {
   if (quiz.length > 0) {
     document.getElementById("start-screen").style.display = "none";
     document.getElementById("quiz-screen").style.display = "block";
+    startTime = Date.now(); // NEW
     showQuestion();
   }
 });
 
-// Next Button
 document.getElementById("next-btn").addEventListener("click", () => {
   currentIndex++;
   if (currentIndex < quiz.length) {
@@ -56,7 +53,6 @@ document.getElementById("next-btn").addEventListener("click", () => {
   }
 });
 
-// Show Question
 function showQuestion() {
   document.getElementById("feedback").textContent = "";
   document.getElementById("next-btn").style.display = "none";
@@ -75,7 +71,6 @@ function showQuestion() {
   });
 }
 
-// Check Answer
 function checkAnswer(selected, q) {
   const correct = selected === q.answer;
   if (correct) {
@@ -95,14 +90,15 @@ function checkAnswer(selected, q) {
   document.getElementById("next-btn").style.display = "block";
 }
 
-// End Quiz
 async function endQuiz() {
   document.getElementById("quiz-screen").style.display = "none";
   document.getElementById("end-screen").style.display = "block";
   document.getElementById("final-name").textContent = `Well done, ${username}!`;
   document.getElementById("final-score").textContent = `Your Score: ${score} / ${quiz.length}`;
 
-  // Save results to backend
+  // NEW: send totalTime in seconds
+  const totalTimeSeconds = Math.round((Date.now() - startTime) / 1000);
+
   try {
     await fetch(RESULT_URL, {
       method: "POST",
@@ -112,7 +108,7 @@ async function endQuiz() {
         email: useremail,
         department,
         answers: answersLog,
-        totalTime: 0
+        totalTime: totalTimeSeconds
       })
     });
   } catch (err) {
