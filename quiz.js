@@ -4,7 +4,7 @@ let score = 0;
 let username = "";
 
 // ✅ Change this to your deployed backend URL if not testing locally
-const API_URL = "http://localhost:5000/api/questions"; 
+const API_URL = "https://cybersecquiz-team1.onrender.com/api/questions"; 
 
 async function loadQuestions() {
   try {

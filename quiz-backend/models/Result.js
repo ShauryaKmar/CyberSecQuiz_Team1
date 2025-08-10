@@ -4,7 +4,8 @@ const answerSchema = new mongoose.Schema({
   questionId: { type: mongoose.Schema.Types.ObjectId, ref: 'Question' },
   selected: Number,
   correct: Boolean,
-  timeTaken: Number  // seconds
+  topic: String,
+  timeTaken: Number
 }, { _id: false });
 
 const resultSchema = new mongoose.Schema({
@@ -12,13 +13,12 @@ const resultSchema = new mongoose.Schema({
   email: String,
   department: String,
   score: Number,
-  answers: [answerSchema],
   totalTime: Number,
-  riskLevel: String,   // Low / Medium / High
-  ip: String,          // optional, for admin use only
+  answers: [answerSchema],
+  riskLevel: String,
   userAgent: String,
+  ip: String,
   date: { type: Date, default: Date.now }
 });
 
-resultSchema.index({ email: 1 });
 module.exports = mongoose.model('Result', resultSchema);
