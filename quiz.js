@@ -14,6 +14,7 @@ let answered = false;
 
 const API_URL    = "https://cybersecquiz-team1.onrender.com/api/questions";
 const RESULT_URL = "https://cybersecquiz-team1.onrender.com/api/results";
+const VERIFY_URL = "https://cybersecquiz-team1.onrender.com/api/access/verify";
 
 const $ = (id) => document.getElementById(id);
 const formatTime = (sec) => `${String(Math.floor(sec/60)).padStart(2,"0")}:${String(sec%60).padStart(2,"0")}`;
@@ -59,18 +60,42 @@ $("start-btn").addEventListener("click", async () => {
   username   = $("username").value.trim();
   useremail  = $("useremail").value.trim();
   department = $("department").value.trim();
-  if (!username || !useremail || !department) { alert("Please fill in all fields!"); return; }
+  const accessCode = $("accessCode").value.trim();
 
+  if (!username || !useremail || !department || !accessCode) {
+    alert("Please fill in all fields (including access code)!");
+    return;
+  }
+
+  // 1) verify access code
+  try {
+    const vr = await fetch(VERIFY_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code: accessCode })
+    });
+    if (!vr.ok) {
+      const t = await vr.text();
+      alert("Access denied. Please check the code.");
+      return;
+    }
+  } catch (e) {
+    alert("Could not verify access code. Please try again.");
+    return;
+  }
+
+  // 2) load questions
   const ok = await loadQuestions();
   if (!ok) return;
 
+  // proceed to quiz
   currentIndex = 0; score = 0; answersLog = [];
   $("start-screen").style.display = "none";
   $("quiz-screen").style.display  = "block";
-
   startTotalTimer();
   showQuestion();
 });
+
 
 $("next-btn").addEventListener("click", () => {
   currentIndex++;

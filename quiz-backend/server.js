@@ -5,6 +5,8 @@ const cors = require("cors");
 
 const app = express();
 
+
+
 // CORS — lock to Netlify in production via env, otherwise "*"
 app.use(cors({ origin: process.env.FRONTEND_ORIGIN || "*" }));
 app.use(express.json());
@@ -28,7 +30,8 @@ mongoose
 const adminRoutes = require("./routes/admin");
 const questionRoutes = require("./routes/questions");
 const resultRoutes = require("./routes/results");
-
+const accessRoutes = require("./routes/access");
+app.use("/api/access", accessRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/questions", questionRoutes);
 app.use("/api/results", resultRoutes);
