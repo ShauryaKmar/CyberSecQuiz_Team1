@@ -1,14 +1,18 @@
 // frontend/admin.js
-document.getElementById("loadData").addEventListener("click", async () => {
+const ANALYTICS_URL = "https://cybersecquiz-team1.onrender.com/api/admin/analytics";
+
+document.getElementById("loadData").addEventListener("click", loadAnalytics);
+
+async function loadAnalytics() {
   const key = document.getElementById("apiKey").value.trim();
   if (!key) return alert("Enter API key!");
 
   try {
-    const res = await fetch("https://cybersecquiz-team1.onrender.com/api/admin/analytics", {
-      headers: { "x-api-key": key }
-    });
-
+    const res = await fetch(ANALYTICS_URL, { headers: { "x-api-key": key } });
     const raw = await res.text();
+    console.log("Analytics status:", res.status, res.statusText);
+    console.log("Analytics raw body:", raw);
+
     if (!res.ok) throw new Error(`HTTP ${res.status} – ${raw || "No body"}`);
 
     const data = JSON.parse(raw);
@@ -24,19 +28,31 @@ document.getElementById("loadData").addEventListener("click", async () => {
       `Average Time: ${Number.isFinite(avgTime) ? Math.round(avgTime) : 0}s`;
 
     // Charts
-    renderTopicChart(data.topicStats || []);
-    renderScoreDistChart(data.scoreDistribution || []);
+    const topics = Array.isArray(data.topicStats) ? data.topicStats : [];
+    const scoreDist = Array.isArray(data.scoreDistribution) ? data.scoreDistribution : [];
+    console.log("topicStats len:", topics.length, "scoreDistribution len:", scoreDist.length);
 
-    // Table
-    renderEmployeeTable(data.employees || []);
+    renderTopicChart(topics);
+    renderScoreDistChart(scoreDist);
+
+    // Employees table
+    const employees = Array.isArray(data.employees) ? data.employees : [];
+    console.log("employees len:", employees.length);
+    renderEmployeeTable(employees);
+
   } catch (err) {
     console.error("Admin data fetch error:", err);
     alert(`Failed to load admin data: ${err.message}`);
   }
-});
+}
 
 function renderTopicChart(topicStats) {
-  const ctx = document.getElementById("topicChart").getContext("2d");
+  const canvas = document.getElementById("topicChart");
+  if (!topicStats.length) {
+    canvas.parentElement.innerHTML = `<div class="empty">No topic data yet.</div>`;
+    return;
+  }
+  const ctx = canvas.getContext("2d");
   new Chart(ctx, {
     type: "bar",
     data: {
@@ -47,15 +63,17 @@ function renderTopicChart(topicStats) {
         backgroundColor: "rgba(255, 99, 132, 0.6)"
       }]
     },
-    options: {
-      responsive: true,
-      scales: { y: { beginAtZero: true, max: 100 } }
-    }
+    options: { responsive: true, scales: { y: { beginAtZero: true, max: 100 } } }
   });
 }
 
 function renderScoreDistChart(scoreDist) {
-  const ctx = document.getElementById("scoreDistChart").getContext("2d");
+  const canvas = document.getElementById("scoreDistChart");
+  if (!scoreDist.length) {
+    canvas.parentElement.innerHTML = `<div class="empty">No score distribution yet.</div>`;
+    return;
+  }
+  const ctx = canvas.getContext("2d");
   new Chart(ctx, {
     type: "pie",
     data: {
@@ -70,8 +88,20 @@ function renderScoreDistChart(scoreDist) {
 }
 
 function renderEmployeeTable(employees) {
-  const tbody = document.querySelector("#resultsTable tbody");
+  const table = document.getElementById("resultsTable");
+  const tbody = table.querySelector("tbody");
   tbody.innerHTML = "";
+
+  if (!employees.length) {
+    // Replace the table with a small empty-state message
+    table.insertAdjacentHTML("afterend", `<div class="empty">No employee results yet.</div>`);
+    return;
+  }
+
+  // Remove any prior empty-state
+  const prevEmpty = table.nextElementSibling;
+  if (prevEmpty && prevEmpty.classList.contains("empty")) prevEmpty.remove();
+
   employees.forEach(e => {
     const pct = Number(e.pct) || 0;
     const riskClass = pct < 50 ? "risk-high" : pct < 70 ? "risk-medium" : "risk-low";

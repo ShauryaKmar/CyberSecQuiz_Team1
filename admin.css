@@ -125,3 +125,13 @@ tr.risk-low {
     margin-bottom: 10px;
   }
 }
+
+.empty {
+  background: #fff;
+  border: 1px dashed #cfd8dc;
+  color: #607d8b;
+  padding: 14px;
+  border-radius: 8px;
+  text-align: center;
+  margin: 10px 0 20px;
+}

@@ -1,33 +1,128 @@
-body {
-  font-family: Arial, sans-serif;
-  background: #f4f4f4;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
+:root{
+  --bg:#f5f7fb;
+  --card:#ffffff;
+  --text:#1f2937;
+  --muted:#6b7280;
+  --primary:#1a237e;
+  --primary-2:#3949ab;
+  --green:#10b981;
+  --red:#ef4444;
+  --border:#e5e7eb;
 }
 
-.quiz-container {
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  width: 400px;
-  text-align: center;
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  color:var(--text);
+  background:var(--bg);
 }
 
-button {
-  padding: 10px 15px;
-  margin-top: 15px;
-  cursor: pointer;
+/* Header */
+.app-header{
+  background: linear-gradient(135deg, var(--primary), var(--primary-2));
+  color:#fff; padding:14px 18px;
+  position: sticky; top:0; z-index:5;
+}
+.brand{display:flex; align-items:center; gap:10px}
+.brand .dot{width:10px;height:10px;border-radius:50%;background:#69f0ae}
+
+/* Footer */
+.app-footer{
+  text-align:center; padding:20px; color:var(--muted);
 }
 
-#options button {
-  display: block;
-  width: 100%;
-  margin: 5px 0;
+/* Layout */
+.container{
+  max-width: 920px;
+  margin: 28px auto;
+  padding: 0 16px;
 }
 
-#feedback {
-  margin-top: 10px;
-  font-weight: bold;
+/* Card */
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:24px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+.card-title{margin:0 0 6px}
+.card-subtitle{margin:0 0 18px; color:var(--muted)}
+
+/* Form */
+.form-grid{
+  display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:16px;
+}
+.form-grid input{
+  padding:12px 12px; border:1px solid var(--border); border-radius:10px; outline:none;
+}
+.form-grid input:focus{border-color: var(--primary-2)}
+
+/* Buttons */
+.btn{
+  padding:12px 16px; border:none; border-radius:10px; cursor:pointer;
+  background:#e5e7eb; color:#111827; font-weight:600;
+}
+.btn.primary{ background: var(--primary-2); color:#fff }
+.btn:disabled{ opacity:0.6; cursor:not-allowed }
+
+/* Top bar */
+.quiz-topbar{
+  display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:16px;
+}
+.timer-chip{
+  background:#eef2ff; border:1px solid #c7d2fe; color:#312e81;
+  padding:8px 12px; border-radius:999px; display:flex; align-items:center; gap:8px;
+}
+
+.progress-wrap{flex:1}
+#progress-label{font-size:14px; color:var(--muted); margin-bottom:6px}
+.progress{
+  width:100%; height:10px; background:#edf2f7; border-radius:999px; overflow:hidden;
+  border:1px solid var(--border);
+}
+.progress-bar{
+  height:100%; width:0%;
+  background: linear-gradient(90deg, #60a5fa, #7c3aed);
+  transition: width .25s ease;
+}
+
+/* Question */
+.qwrap{display:flex; flex-direction:column; gap:12px}
+.question{margin:8px 0 4px}
+
+/* Options */
+.options{display:grid; gap:10px}
+.options button{
+  text-align:left; width:100%; padding:14px 14px;
+  border:1px solid var(--border); border-radius:12px; background:#fff; cursor:pointer;
+  transition: transform .05s ease, border-color .2s ease;
+}
+.options button:hover{ transform: translateY(-1px); border-color:#c7d2fe }
+.options button.correct{ border-color: #34d399; background: #ecfdf5 }
+.options button.wrong{ border-color: #fca5a5; background: #fef2f2 }
+.options button:disabled{ opacity:0.9; cursor:not-allowed }
+
+/* Feedback */
+.feedback{ min-height:24px; font-weight:600; }
+.feedback.ok{ color: var(--green) }
+.feedback.no{ color: var(--red) }
+
+/* Actions */
+.actions{ display:flex; justify-content:flex-end; margin-top:6px }
+
+/* End screen */
+.muted{ color:var(--muted) }
+.big-score{ font-size:28px; font-weight:800; margin:8px 0 0 }
+
+/* Responsive */
+@media (max-width: 900px){
+  .form-grid{ grid-template-columns:1fr; }
+  .quiz-topbar{ flex-direction:column; align-items:flex-start }
+}
+
+.timer-chips{ display:flex; gap:10px; align-items:center }
+.timer-chip.secondary{
+  background:#fff7ed; border:1px solid #fed7aa; color:#9a3412;
 }
