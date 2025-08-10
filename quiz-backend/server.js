@@ -1,39 +1,40 @@
+require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-require("dotenv").config();
 
 const app = express();
 
-// CORS
+// CORS — lock to Netlify in production via env, otherwise "*"
 app.use(cors({ origin: process.env.FRONTEND_ORIGIN || "*" }));
-
-// Body parser
 app.use(express.json());
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log("MongoDB connected"))
-.catch(err => {
-  console.error("MongoDB connection error:", err);
-  process.exit(1);
+// (Optional) request logging while debugging
+app.use((req, _res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
+  next();
 });
 
-// Import route files
+// Mongo connect
+mongoose
+  .connect(process.env.MONGODB_URI)
+  .then(() => console.log("MongoDB connected"))
+  .catch((err) => {
+    console.error("MongoDB connection error:", err);
+    process.exit(1);
+  });
+
+// Mount routes (NO parentheses)
 const adminRoutes = require("./routes/admin");
 const questionRoutes = require("./routes/questions");
 const resultRoutes = require("./routes/results");
 
-// Mount routes
 app.use("/api/admin", adminRoutes);
 app.use("/api/questions", questionRoutes);
 app.use("/api/results", resultRoutes);
 
-// Start server
+// Health check
+app.get("/healthz", (_req, res) => res.send("ok"));
+
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

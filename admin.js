@@ -1,25 +1,29 @@
-// frontend/admin.js
-const ANALYTICS_URL = "https://cybersecquiz-team1.onrender.com/api/admin/insights";
+const ADMIN_BASE = "https://cybersecquiz-team1.onrender.com/api/admin";
 
-document.getElementById("loadData").addEventListener("click", loadAnalytics);
+async function fetchAdminData(key) {
+  const urls = [`${ADMIN_BASE}/insights`, `${ADMIN_BASE}/analytics`]; // fallback
+  let lastErr;
+  for (const url of urls) {
+    try {
+      const res = await fetch(url, { headers: { "x-api-key": key } });
+      const txt = await res.text();
+      if (!res.ok) throw new Error(`HTTP ${res.status} – ${txt || "No body"}`);
+      return JSON.parse(txt);
+    } catch (e) { lastErr = e; }
+  }
+  throw lastErr;
+}
 
-async function loadAnalytics() {
+document.getElementById("loadData").addEventListener("click", async () => {
   const key = document.getElementById("apiKey").value.trim();
-  if (!key) return alert("Enter API key!");
+  if (!key) return alert("Enter Admin Key!");
 
   try {
-    const res = await fetch(ANALYTICS_URL, { headers: { "x-api-key": key } });
-    const raw = await res.text();
-    console.log("Analytics status:", res.status, res.statusText);
-    console.log("Analytics raw body:", raw);
+    const data = await fetchAdminData(key);
 
-    if (!res.ok) throw new Error(`HTTP ${res.status} – ${raw || "No body"}`);
-
-    const data = JSON.parse(raw);
-
-    // Cards
+    // cards
     const avgScore = Number(data.averageScore);
-    const avgTime = Number(data.averageTime);
+    const avgTime  = Number(data.averageTime);
     document.getElementById("totalResponsesCard").textContent =
       `Total Responses: ${Number(data.totalResponses) || 0}`;
     document.getElementById("avgScoreCard").textContent =
@@ -27,24 +31,14 @@ async function loadAnalytics() {
     document.getElementById("avgTimeCard").textContent =
       `Average Time: ${Number.isFinite(avgTime) ? Math.round(avgTime) : 0}s`;
 
-    // Charts
-    const topics = Array.isArray(data.topicStats) ? data.topicStats : [];
-    const scoreDist = Array.isArray(data.scoreDistribution) ? data.scoreDistribution : [];
-    console.log("topicStats len:", topics.length, "scoreDistribution len:", scoreDist.length);
-
-    renderTopicChart(topics);
-    renderScoreDistChart(scoreDist);
-
-    // Employees table
-    const employees = Array.isArray(data.employees) ? data.employees : [];
-    console.log("employees len:", employees.length);
-    renderEmployeeTable(employees);
-
+    renderTopicChart(Array.isArray(data.topicStats) ? data.topicStats : []);
+    renderScoreDistChart(Array.isArray(data.scoreDistribution) ? data.scoreDistribution : []);
+    renderEmployeeTable(Array.isArray(data.employees) ? data.employees : []);
   } catch (err) {
-    console.error("Admin data fetch error:", err);
+    console.error("Admin load error:", err);
     alert(`Failed to load admin data: ${err.message}`);
   }
-}
+});
 
 function renderTopicChart(topicStats) {
   const canvas = document.getElementById("topicChart");
@@ -52,8 +46,7 @@ function renderTopicChart(topicStats) {
     canvas.parentElement.innerHTML = `<div class="empty">No topic data yet.</div>`;
     return;
   }
-  const ctx = canvas.getContext("2d");
-  new Chart(ctx, {
+  new Chart(canvas.getContext("2d"), {
     type: "bar",
     data: {
       labels: topicStats.map(t => t.topic),
@@ -73,8 +66,7 @@ function renderScoreDistChart(scoreDist) {
     canvas.parentElement.innerHTML = `<div class="empty">No score distribution yet.</div>`;
     return;
   }
-  const ctx = canvas.getContext("2d");
-  new Chart(ctx, {
+  new Chart(canvas.getContext("2d"), {
     type: "pie",
     data: {
       labels: scoreDist.map(s => s.range),
@@ -93,12 +85,9 @@ function renderEmployeeTable(employees) {
   tbody.innerHTML = "";
 
   if (!employees.length) {
-    // Replace the table with a small empty-state message
     table.insertAdjacentHTML("afterend", `<div class="empty">No employee results yet.</div>`);
     return;
   }
-
-  // Remove any prior empty-state
   const prevEmpty = table.nextElementSibling;
   if (prevEmpty && prevEmpty.classList.contains("empty")) prevEmpty.remove();
 

@@ -1,17 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Cybersecurity Quiz</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
   <header class="app-header">
-    <div class="brand">
-      <div class="dot"></div>
-      <h1>Cybersecurity Awareness Quiz</h1>
-    </div>
+    <div class="brand"><div class="dot"></div><h1>Cybersecurity Awareness Quiz</h1></div>
   </header>
 
   <main class="container">
@@ -29,35 +26,27 @@
 
     <!-- Quiz -->
     <section id="quiz-screen" class="card" style="display:none;">
-  <div class="quiz-topbar">
-    <div class="progress-wrap">
-      <div id="progress-label">Question 1/—</div>
-      <div class="progress">
-        <div id="progress-bar" class="progress-bar"></div>
+      <div class="quiz-topbar">
+        <div class="progress-wrap">
+          <div id="progress-label">Question 1/—</div>
+          <div class="progress"><div id="progress-bar" class="progress-bar"></div></div>
+        </div>
+        <div class="timer-chips">
+          <div class="timer-chip" title="Elapsed time"><span>⏱</span><span id="timer">00:00</span></div>
+          <div class="timer-chip secondary" title="Time left for this question"><span>⌛</span><span id="q-timer">20s</span></div>
+        </div>
       </div>
-    </div>
 
-    <div class="timer-chips">
-      <div class="timer-chip" title="Elapsed time">
-        <span>⏱</span><span id="timer">00:00</span>
+      <div class="qwrap">
+        <h2 id="question" class="question">Loading…</h2>
+        <div id="options" class="options"></div>
+        <div id="feedback" class="feedback"></div>
       </div>
-      <div class="timer-chip secondary" title="Time left for this question">
-        <span>⌛</span><span id="q-timer">20s</span>
+
+      <div class="actions">
+        <button id="next-btn" class="btn" style="display:none;">Next</button>
       </div>
-    </div>
-  </div>
-
-  <div class="qwrap">
-    <h2 id="question" class="question">Loading…</h2>
-    <div id="options" class="options"></div>
-    <div id="feedback" class="feedback"></div>
-  </div>
-
-  <div class="actions">
-    <button id="next-btn" class="btn" style="display:none;">Next</button>
-  </div>
-</section>
-
+    </section>
 
     <!-- End -->
     <section id="end-screen" class="card" style="display:none;">
@@ -70,9 +59,7 @@
     </section>
   </main>
 
-  <footer class="app-footer">
-    <span>Team 1 Consulting Pvt. Ltd.</span>
-  </footer>
+  <footer class="app-footer"><span>Team 1 Consulting Pvt. Ltd.</span></footer>
 
   <script src="quiz.js"></script>
 </body>
