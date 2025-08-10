@@ -125,4 +125,86 @@ function renderEmployeeTable(employees) {
     });
     tbody.appendChild(tr);
   });
+
+  function showEmployeeModal(data) {
+  const modal = document.getElementById("empModal");
+  const title = document.getElementById("empTitle");
+  const summary = document.getElementById("empSummary");
+  const weak = document.getElementById("empWeak");
+  const ansBody = document.getElementById("empAnswers");
+  const attBody = document.getElementById("empAttempts");
+
+  // Title
+  title.textContent = `${data.profile.name} — ${data.profile.email}`;
+
+  // Summary chips
+  const avg = Number(data.summary.avgScore) || 0;
+  const last = Number(data.summary.lastScore) || 0;
+  const avgTime = Number(data.summary.avgTime) || 0;
+  summary.innerHTML = `
+    <span class="chip">Department: ${data.profile.department || "—"}</span>
+    <span class="chip">Attempts: ${data.profile.attempts || 0}</span>
+    <span class="chip">Avg Score: ${avg.toFixed(1)}%</span>
+    <span class="chip">Last Score: ${last.toFixed(1)}%</span>
+    <span class="chip">Avg Time: ${Math.round(avgTime)}s</span>
+  `;
+
+  // Weak topics
+  weak.innerHTML = "";
+  (data.summary.weakTopics || []).forEach(t => {
+    const li = document.createElement("li");
+    li.textContent = `${t.topic} (${t.wrongCount})`;
+    weak.appendChild(li);
+  });
+  if (!weak.children.length) {
+    const li = document.createElement("li");
+    li.textContent = "No weak topics detected.";
+    weak.appendChild(li);
+  }
+
+  // Last attempt answers
+  ansBody.innerHTML = "";
+  (data.lastAttempt?.answers || []).forEach(a => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${a.question}</td>
+      <td>${a.topic || "General"}</td>
+      <td>${a.selectedText || "(no answer)"}</td>
+      <td>${a.correctText || ""}</td>
+      <td class="${a.correct ? "ok" : "no"}">${a.correct ? "Correct" : "Wrong"}</td>
+    `;
+    ansBody.appendChild(tr);
+  });
+  if (!ansBody.children.length) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td colspan="5">No answers found for last attempt.</td>`;
+    ansBody.appendChild(tr);
+  }
+
+  // Attempts list
+  attBody.innerHTML = "";
+  (data.attempts || []).forEach(a => {
+    const d = new Date(a.date);
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${d.toLocaleString()}</td>
+      <td>${a.score}/${a.total} (${(Number(a.pct)||0).toFixed(1)}%)</td>
+      <td>${a.totalTime != null ? (a.totalTime + "s") : "—"}</td>
+    `;
+    attBody.appendChild(tr);
+  });
+
+  // Show
+  modal.style.display = "grid";
+
+  // Close handlers
+  const closeBtn = document.getElementById("empClose");
+  const backdrop = modal.querySelector("[data-close]");
+  const close = () => (modal.style.display = "none");
+  closeBtn.onclick = close;
+  backdrop.onclick = close;
+  document.addEventListener("keydown", escClose);
+  function escClose(e){ if (e.key === "Escape") { close(); document.removeEventListener("keydown", escClose); } }
+}
+
 }
